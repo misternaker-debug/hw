@@ -1,0 +1,40 @@
+#include <cstdlib>
+#include "mpi.h"
+#include <iostream>
+using namespace std;
+int main(int argc, char** argv)
+
+
+{   
+	int rank, size;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	const int N = 500;
+	int** A = new int* [N];
+	int** B = new int* [N];
+	int** C = new int* [N];
+	for (int i = 0; i < N; i++)
+	{
+		A[i] = new int[N];
+		B[i] = new int[N];
+		C[i] = new int[N];
+	}
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < N; j++)
+		{
+			A[i][j] = rand() % 10;
+			B[i][j] = rand() % 10;
+		}
+	}
+	MPI_Barrier(MPI_COMM_WORLD); 
+	auto start = MPI_Wtime();
+	for (int i = 0; i < N; i++)
+		for (int k = 0; k < N; k++)
+			for (int j = 0; j < N; j++)
+				C[i][j] = C[i][j] + A[i][k] * B[k][j];
+	auto time = MPI_Wtime() - start;
+	cout << "Process " << rank << " finished in " << time << " seconds\n";
+	MPI_Finalize();
+}

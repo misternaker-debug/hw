@@ -1,0 +1,35 @@
+#include <iostream>
+#include "mpi.h"
+#define NTIMES 100
+using namespace std;
+int main(int argc, char** argv)
+{
+	
+	MPI_Init(&argc, &argv);
+	double time_start, time_finish;
+	int rank, n, i, message;
+	int len;
+	char* name = new char;
+	MPI_Status status;
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &n);
+	MPI_Get_processor_name(name, &len);
+	time_start = MPI_Wtime();
+	for (int j = 0; j < NTIMES; j++)
+
+		if (rank == 0)
+		{
+			for (i = 1; i < n; i++)
+			{
+				MPI_Send(&i, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
+
+			}
+
+		}
+		else {
+			MPI_Recv(&message, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
+		}
+		time_finish = MPI_Wtime();
+	cout << "processor " << name << ", process:  " << rank << "time = " << (time_finish - time_start) / NTIMES << endl;
+	MPI_Finalize();
+}
